@@ -16,6 +16,8 @@ The following input options are available:
   Current methods available are: "gaussian", "bisector", or "template" (default)
 --bandpass for selecting the nIR band pass
   Current options available are: 'Y', 'J', 'H', 'K', or 'YJHK' (default)
+--exclude_orders for selecting orders to exclude
+  Order numbers must be separated by comma, e.g.: --exclude_orders="0,11,12,13,15,16,20,21,22,47,48"
 -a for saving all sub-products, including csv tables and plot files
   By default it generates only the RV time-series in .rdb format.
 -f force overwriting
