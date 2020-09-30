@@ -5,8 +5,6 @@ Wrapper to perform radial velocity measurements on SPIRou CCF data using the CCF
 To start using this tool for a given CCF data set saved in a given directory `SOME_PATH/TARGET/`, one can run the following example:
 
 ```
-cd spirou-ccf-analysis/
-
 python spirou_ccf_analysis.py --pattern=SOME_PATH/TARGET/*.fits
 ```
 The following input options are available:
