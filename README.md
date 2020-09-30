@@ -16,7 +16,7 @@ The following input options are available:
   Current methods available are: "gaussian", "bisector", or "template" (default)
 --bandpass for selecting the nIR band pass
   Current options available are: 'Y', 'J', 'H', 'K', or 'YJHK' (default)
---exclude_orders for selecting orders to exclude
+--exclude_orders for selecting orders to exclude from the CCF analysis
   Order numbers must be separated by comma, e.g.: --exclude_orders="0,11,12,13,15,16,20,21,22,47,48"
 -a for saving all sub-products, including csv tables and plot files
   By default it generates only the RV time-series in .rdb format.
@@ -29,7 +29,16 @@ Notice that more than one type of reduced data may be included in the input patt
 The tool `rv_plots.py` can be used to plot all RV time series together, as in the following example:
 
 ```
-python rv_plots.py --pattern=data/TOI-1278/*.rdb -f
+python rv_plots.py --pattern=data/TOI-1278/*.rdb -f -c --output=data/TOI-1278/TOI-1278.rdb
+```
+
+Note the following options:
+```
+--pattern for input data pattern 
+  (e.g., --pattern=data/TOI-1278/*__HK__.rdb)
+--output for providing a filename to save mean RVs
+-f for fitting a sinusoidal orbit to each input data set
+-c to calibrate RVs to match the average RV between all data sets.
 ```
 
 which generates the following plot:
