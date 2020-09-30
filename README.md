@@ -22,7 +22,7 @@ The following input options are available:
 -p for plotting
 -v for verbose
 ```
-Notice that more than one type of reduced data may be included, for example the CCF data obtined with two different masks. The `spirou_ccf_analysis.py` tool will recognize each collection separately and will produce one RV time series file for each of them. The collections are selected by matching the combination of the following criteria: object name, ccf mask, sanitize option, and DRS version, from the informaion in the FITS header.
+Notice that more than one type of reduced data may be included, for example the CCF data obtined with two different masks. The `spirou_ccf_analysis.py` tool will recognize each collection separately and will produce one RV time series file for each of them. The collections are selected by matching the combination of the following criteria: **object name**, **ccf mask**, **sanitize option**, and **DRS version**, from the information in the FITS header.
 
 The tool `rv_plots.py` can be used to plot all RV time series together, as in the following example:
 
