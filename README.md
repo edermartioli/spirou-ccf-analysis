@@ -29,13 +29,12 @@ Notice that more than one type of reduced data may be included in the input patt
 The tool `rv_plots.py` can be used to plot all RV time series together, as in the following example:
 
 ```
-python rv_plots.py --pattern=data/TOI-1278/*.rdb -f -c --output=data/TOI-1278/TOI-1278.rdb
+python rv_plots.py --pattern=data/TOI-1278/*__HK__.rdb -f -c --output=data/TOI-1278/TOI-1278_HK.rdb
 ```
 
 Note the following options:
 ```
 --pattern for input data pattern 
-  (e.g., --pattern=data/TOI-1278/*__HK__.rdb)
 --output for providing a filename to save mean RVs
 -f for fitting a sinusoidal orbit to each input data set
 -c to calibrate RVs to match the average RV between all data sets.
@@ -43,4 +42,4 @@ Note the following options:
 
 which generates the following plot:
 
-![Alt text](Figures/TOI-1278.png?raw=true "Title")
+![Alt text](Figures/TOI-1278_HK.png?raw=true "Title")
