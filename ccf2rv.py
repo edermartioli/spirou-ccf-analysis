@@ -628,3 +628,77 @@ def read_rv_time_series(rvfile) :
     rv, rverr = np.array(rvdata["vrad"]), np.array(rvdata["svrad"])
     
     return bjd, rv, rverr
+
+
+
+def orbit_model (t, a, b, per, t0):
+    """
+        Description: simple sinusoidal RV orbit model
+        """
+    f = a + b * np.sin(2*np.pi*(t-t0)/per)
+    return f
+
+
+def fitorbit(bjd, rvs, rverrs, guess=[], plot=True, verbose=True) :
+    """
+        Description: function to fit orbit to RV data
+        """
+    if len(guess) == 0 :
+        a0, b0, p0, t0 = np.mean(rvs), np.abs(np.max(rvs) - np.min(rvs)), 10., bjd[0]
+        guess = [a0, b0, p0, t0]
+
+    pfit, pcov = curve_fit(orbit_model, bjd, rvs, p0=guess)
+    efit = np.sqrt(np.diag(pcov))
+
+    log_string = ''
+    log_string += "Systemic velocity: {0:.3f}+-{1:.3f} km/s\n".format(pfit[0],efit[0])
+    log_string += "K: {0:.3f}+-{1:.3f} km/s\n".format(pfit[1],efit[1])
+    log_string += "Period: {0:.3f}+-{1:.3f} days\n".format(pfit[2],efit[2])
+    log_string += "T0: {0:.6f}+-{1:.6f} BJD\n".format(pfit[3],efit[3])
+
+    residuals = rvs - orbit_model(bjd, *pfit)
+    rms_res = np.nanstd(residuals)
+    mad_res = np.nanmedian(np.abs(residuals)) / 0.67449
+
+    log_string += "RMS of residuals: {0:.1f} m/s\n".format(rms_res*1000)
+    log_string += "MAD of residuals: {0:.1f} m/s".format(mad_res*1000)
+
+    if verbose :
+        print(log_string)
+
+    model_bjds = np.linspace(bjd[0] - pfit[2]/4, bjd[-1] + pfit[2]/4, 1000)
+
+    fit_model = orbit_model(model_bjds, *pfit)
+
+    if plot :
+        fig, ax = plt.subplots(nrows = 2, ncols = 1,sharex = True)
+        #plt.text(np.mean(bjd)-(bjd[-1]-bjd[0])/2, np.mean(rvs), log_string)
+        ax[0].errorbar(bjd, rvs, yerr=rverrs, linestyle="None", fmt='o',color = 'k')
+        ax[0].plot(model_bjds, fit_model,'r:')
+        ax[0].set(ylabel = 'Velocity [km/s]',title = object)
+        ax[1].errorbar(bjd, residuals, yerr=rverrs, linestyle="None", fmt='o', capsize = 2, color = 'k')
+        ax[1].plot(model_bjds, np.zeros(len(model_bjds)),'r:')
+        ax[1].set(xlabel = 'BJD-2400000', ylabel = 'Residuals [km/s]')
+        plt.tight_layout()
+        #plt.savefig((options.input).replace('.rdb','.png'))
+        plt.show()
+
+    loc = {}
+    loc["systemic_rv"] = pfit[0]
+    loc["systemic_rverr"] = efit[0]
+    loc["K"] = pfit[1]
+    loc["Kerr"] = efit[1]
+    loc["period"] = pfit[2]
+    loc["perioderr"] = efit[2]
+    loc["t0"] = pfit[3]
+    loc["t0err"] = efit[3]
+
+    loc["fit_model"] = orbit_model(bjd, *pfit)
+    loc["residuals"] = residuals
+    loc["rms_residuals"] = rms_res*1000
+    loc["mad_residuals"] = mad_res*1000
+    
+    loc["bjd_long_model"] = model_bjds
+    loc["rv_long_model"] = orbit_model(model_bjds, *pfit)
+    
+    return loc

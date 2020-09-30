@@ -29,6 +29,7 @@ parser = OptionParser()
 parser.add_option("-i", "--pattern", dest="pattern", help="Input CCF data pattern",type='string',default="")
 parser.add_option("-m", "--method", dest="method", help="Method to calculate RVs",type='string',default="template")
 parser.add_option("-b", "--bandpass", dest="bandpass", help="Bandpass",type='string',default="YJHK")
+parser.add_option("-e", "--exclude_orders", dest="exclude_orders", help="List of orders to exclude in the analysis ",type='string',default="-1")
 parser.add_option("-a", action="store_true", dest="save_all_subproducts", help="Save all sub-products", default=False)
 parser.add_option("-f", action="store_true", dest="force", help="force overwriting", default=False)
 parser.add_option("-p", action="store_true", dest="plot", help="plot", default=False)
@@ -44,10 +45,17 @@ if options.verbose:
     print('Input CCF data pattern: ', options.pattern)
     print('Method to calculate RVs: ', options.method)
     print('Bandpass: ', options.bandpass)
+    print('List of orders to exclude in the analysis: ', options.exclude_orders)
 
 if options.verbose:
     print("Creating list of CCF data files...")
 ccf_files = sorted(glob.glob(options.pattern))
+
+#[0,11,12,13,15,16,20,21,22,47,48]
+exclude_orders = options.exclude_orders.split(",")
+
+for i in range(len(exclude_orders)) :
+    exclude_orders[i] = int(exclude_orders[i])
 
 # detect and organize collection of files based on: object, ccfmask, sanitize, and DRS version
 ccf_collections = ccf2rv.create_collections(ccf_files)
@@ -58,4 +66,4 @@ for key in ccf_collections["modes"]:
     if options.verbose:
         print("Processing collection {0} containing {1} files".format(key, len(list_of_files)))
 
-    tbl = ccf2rv.get_object_rv(list_of_files, collection_key=key, method=options.method, force=options.force, exclude_orders = [0,11,12,13,15,16,20,21,22,47,48], snr_min=20.0, bandpass = options.bandpass, save_subproducts=options.save_all_subproducts, showplots=options.plot, verbose=options.verbose)
+    tbl = ccf2rv.get_object_rv(list_of_files, collection_key=key, method=options.method, force=options.force, exclude_orders = exclude_orders, snr_min=20.0, bandpass = options.bandpass, save_subproducts=options.save_all_subproducts, showplots=options.plot, verbose=options.verbose)
