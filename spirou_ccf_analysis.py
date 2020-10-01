@@ -10,7 +10,7 @@
     
     Simple usage example:
     
-    python spirou_ccf_analysis.py --pattern=data/TOI-1452/*.fits
+    python spirou_ccf_analysis.py --pattern=data/TOI-1452/*.fits --bandpass="HK" --snr_min=20
     """
 
 __version__ = "1.0"
@@ -30,6 +30,7 @@ parser.add_option("-i", "--pattern", dest="pattern", help="Input CCF data patter
 parser.add_option("-m", "--method", dest="method", help="Method to calculate RVs",type='string',default="template")
 parser.add_option("-b", "--bandpass", dest="bandpass", help="Bandpass",type='string',default="YJHK")
 parser.add_option("-e", "--exclude_orders", dest="exclude_orders", help="List of orders to exclude in the analysis ",type='string',default="-1")
+parser.add_option("-e", "--min_snr", dest="min_snr", help="Minimum SNR",type='string',default="0")
 parser.add_option("-a", action="store_true", dest="save_all_subproducts", help="Save all sub-products", default=False)
 parser.add_option("-f", action="store_true", dest="force", help="force overwriting", default=False)
 parser.add_option("-p", action="store_true", dest="plot", help="plot", default=False)
@@ -46,6 +47,7 @@ if options.verbose:
     print('Method to calculate RVs: ', options.method)
     print('Bandpass: ', options.bandpass)
     print('List of orders to exclude in the analysis: ', options.exclude_orders)
+    print('Minimum SNR: ', options.min_snr)
 
 if options.verbose:
     print("Creating list of CCF data files...")
@@ -66,4 +68,4 @@ for key in ccf_collections["modes"]:
     if options.verbose:
         print("Processing collection {0} containing {1} files".format(key, len(list_of_files)))
 
-    tbl = ccf2rv.get_object_rv(list_of_files, collection_key=key, method=options.method, force=options.force, exclude_orders = exclude_orders, snr_min=20.0, bandpass = options.bandpass, save_subproducts=options.save_all_subproducts, showplots=options.plot, verbose=options.verbose)
+    tbl = ccf2rv.get_object_rv(list_of_files, collection_key=key, method=options.method, force=options.force, exclude_orders = exclude_orders, snr_min=float(options.min_snr), bandpass = options.bandpass, save_subproducts=options.save_all_subproducts, showplots=options.plot, verbose=options.verbose)
