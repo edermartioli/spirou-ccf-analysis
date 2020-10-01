@@ -10,7 +10,7 @@ python spirou_ccf_analysis.py --pattern=data/TOI-1278/*.fits
 
 The following input options are available:
 ```
---pattern for input data pattern 
+--pattern for input data pattern. 
   (e.g., --pattern=*ccf_gl514_neg_AB.fits)
 --method for selecting which method to use in the CCF analysis. 
   Current methods available are: "gaussian", "bisector", or "template" (default)
@@ -18,6 +18,7 @@ The following input options are available:
   Current options available are: 'Y', 'J', 'H', 'K', or 'YJHK' (default)
 --exclude_orders for selecting orders to exclude from the CCF analysis
   Order numbers must be separated by comma, e.g.: --exclude_orders="0,11,12,13,15,16,20,21,22,47,48"
+--min_snr for setting minimum signal-to-noise ratio.
 -a for saving all sub-products, including csv tables and plot files
   By default it generates only the RV time-series in .rdb format.
 -f force overwriting
