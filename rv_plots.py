@@ -87,45 +87,49 @@ for i in range(len(rv_files)):
         
         plt.errorbar(bjd[i], rv_calib, yerr=rverr[i], linestyle="None", fmt='o', alpha = 0.5, label="{0}: RV{1:+.3f} km/s".format(basename,pfit[0]))
     
+        sigma_eff = np.median(rverr[i])
+
         if options.fit_orbit :
             fit = ccf2rv.fitorbit(bjd[i], rv_calib, rverr[i], plot=False, verbose=False)
             plt.plot(fit["bjd_long_model"], fit["rv_long_model"],':')
-            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s sig_eff={7:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000))
         else :
             rms = np.std(rv_calib)
             mad = stats.median_absolute_deviation(rv_calib)
-            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s".format(basename,rms*1000,mad*1000))
+            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s sig_eff={3:.1f} m/s".format(basename,rms*1000,mad*1000,sigma_eff*1000))
 
     else :
         rv_calib = rv[i]
         plt.errorbar(bjd[i], rv[i], yerr=rverr[i], linestyle="None", fmt='o', alpha = 0.5, label="{}".format(basename))
+        sigma_eff = np.median(rverr[i])
 
         if options.fit_orbit :
             fit = ccf2rv.fitorbit(bjd[i], rv[i], rverr[i], plot=False, verbose=False)
             plt.plot(fit["bjd_long_model"], fit["rv_long_model"],':')
-            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s sig_eff={7:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000))
         else :
             rms = np.std(rv_calib)
             mad = stats.median_absolute_deviation(rv_calib)
-            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s".format(basename,rms*1000,mad*1000))
-    
+            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s sig_eff={3:.1f} m/s".format(basename,rms*1000,mad*1000,sigma_eff*1000))
+
     rvs_calib.append(rv_calib)
 
 rvs_calib = np.array(rvs_calib)
 
 median_rv_calib = np.median(rvs_calib, axis=0)
 mad_rv_calib = np.median(np.abs(rvs_calib - median_rv_calib), axis=0) / 0.67449
+sigma_eff = np.median(mad_rv_calib)
 
-plt.errorbar(bjd[0], median_rv_calib, yerr=mad_rv_calib, linestyle="None", fmt='o', color='k', label="Mean RV")
+plt.errorbar(bjd[0], median_rv_calib, yerr=mad_rv_calib, linestyle="None", fmt='o', color='k', label="Median RV")
 
 if options.fit_orbit :
     fit = ccf2rv.fitorbit(bjd[0], median_rv_calib, mad_rv_calib, plot=False, verbose=False)
     plt.plot(fit["bjd_long_model"], fit["rv_long_model"],'-', color='k')
-    print("Median RVs: P={0:.2f}+-{1:.2f} d K={2:.3f}+-{3:.3f} km/s rms={4:.1f} m/s mad={5:.1f} m/s".format(fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+    print("Median RVs: P={0:.2f}+-{1:.2f} d K={2:.3f}+-{3:.3f} km/s rms={4:.1f} m/s mad={5:.1f} m/s sig_eff={6:.1f} m/s".format(fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000))
 else:
     rms = np.std(median_rv_calib)
     mad = stats.median_absolute_deviation(median_rv_calib)
-    print("Median RVs: rms={0:.1f} m/s mad={1:.1f} m/s".format(rms*1000,mad*1000))
+    print("Median RVs: rms={0:.1f} m/s mad={1:.1f} m/s sig_eff={2:.1f} m/s".format(rms*1000,mad*1000,sigma_eff*1000))
 
 plt.xlabel('BJD')
 plt.ylabel('Velocity [km/s]')
