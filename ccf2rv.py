@@ -712,7 +712,6 @@ def combine_rvs_per_epoch(bjd, rv, rverr, one_epoch_size=1.0, median=True, nsig=
     """
     t0 = np.min(bjd)
     tf = np.max(bjd)
-    print(t0,tf)
     epochs = []
     time_tmp = t0 - 0.5 * one_epoch_size
     
