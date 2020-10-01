@@ -10,7 +10,7 @@
     
     Simple usage example:
     
-    python rv_plots.py --pattern=*.rdb --output=
+    python rv_plots.py --pattern=data/TOI-1278/*__HK__*.rdb --output=data/TOI-1278/TOI-1278.rdb -f -c -e
     """
 
 __version__ = "1.0"
@@ -28,10 +28,13 @@ import ccf2rv
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+from scipy import stats
+
 
 parser = OptionParser()
 parser.add_option("-i", "--pattern", dest="pattern", help="Input RV data pattern",type='string',default="")
 parser.add_option("-o", "--output", dest="output", help="Output RV file name (end with .rdb)",type='string',default="")
+parser.add_option("-e", action="store_true", dest="combine_epochs", help="Combine points within the same epochs", default=False)
 parser.add_option("-c", action="store_true", dest="calib", help="calibrate data sets", default=False)
 parser.add_option("-f", action="store_true", dest="fit_orbit", help="fit orbit", default=False)
 parser.add_option("-v", action="store_true", dest="verbose", help="verbose", default=False)
@@ -53,9 +56,15 @@ rv_files = sorted(glob.glob(options.pattern))
 bjd, rv, rverr = [], [], []
 for i in range(len(rv_files)):
     loc_bjd, loc_rv, loc_rverr = ccf2rv.read_rv_time_series(rv_files[i])
+    #plt.errorbar(loc_bjd, loc_rv, yerr=loc_rverr, fmt='o', color='r', alpha=0.4)
+    if options.combine_epochs :
+        loc_bjd, loc_rv, loc_rverr = ccf2rv.combine_rvs_per_epoch(loc_bjd, loc_rv, loc_rverr, median=False, nsig=5)
+        #plt.errorbar(loc_bjd, loc_rv, yerr=loc_rverr, fmt='o', color='k')
+    #plt.show()
     bjd.append(loc_bjd)
     rv.append(loc_rv)
     rverr.append(loc_rverr)
+
 bjd = np.array(bjd)
 rv = np.array(rv)
 rverr = np.array(rverr)
@@ -81,7 +90,11 @@ for i in range(len(rv_files)):
         if options.fit_orbit :
             fit = ccf2rv.fitorbit(bjd[i], rv_calib, rverr[i], plot=False, verbose=False)
             plt.plot(fit["bjd_long_model"], fit["rv_long_model"],':')
-            print("{0}: P={1:.2f}+-{2:.2f}d K={3:.3f}+-{4:.3f}km/s rms={5:.1f}m/s mad={6:.1f}m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+        else :
+            rms = np.std(rv_calib)
+            mad = stats.median_absolute_deviation(rv_calib)
+            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s".format(basename,rms*1000,mad*1000))
 
     else :
         rv_calib = rv[i]
@@ -90,8 +103,12 @@ for i in range(len(rv_files)):
         if options.fit_orbit :
             fit = ccf2rv.fitorbit(bjd[i], rv[i], rverr[i], plot=False, verbose=False)
             plt.plot(fit["bjd_long_model"], fit["rv_long_model"],':')
-            print("{0}: P={1:.2f}+-{2:.2f}d K={3:.3f}+-{4:.3f}km/s rms={5:.1f}m/s mad={6:.1f}m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
-                
+            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+        else :
+            rms = np.std(rv_calib)
+            mad = stats.median_absolute_deviation(rv_calib)
+            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s".format(basename,rms*1000,mad*1000))
+    
     rvs_calib.append(rv_calib)
 
 rvs_calib = np.array(rvs_calib)
@@ -100,6 +117,15 @@ median_rv_calib = np.median(rvs_calib, axis=0)
 mad_rv_calib = np.median(np.abs(rvs_calib - median_rv_calib), axis=0) / 0.67449
 
 plt.errorbar(bjd[0], median_rv_calib, yerr=mad_rv_calib, linestyle="None", fmt='o', color='k', label="Mean RV")
+
+if options.fit_orbit :
+    fit = ccf2rv.fitorbit(bjd[0], median_rv_calib, mad_rv_calib, plot=False, verbose=False)
+    plt.plot(fit["bjd_long_model"], fit["rv_long_model"],'-', color='k')
+    print("Median RVs: P={0:.2f}+-{1:.2f} d K={2:.3f}+-{3:.3f} km/s rms={4:.1f} m/s mad={5:.1f} m/s".format(fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"]))
+else:
+    rms = np.std(median_rv_calib)
+    mad = stats.median_absolute_deviation(median_rv_calib)
+    print("Median RVs: rms={0:.1f} m/s mad={1:.1f} m/s".format(rms*1000,mad*1000))
 
 plt.xlabel('BJD')
 plt.ylabel('Velocity [km/s]')

@@ -702,3 +702,60 @@ def fitorbit(bjd, rvs, rverrs, guess=[], plot=True, verbose=True) :
     loc["rv_long_model"] = orbit_model(model_bjds, *pfit)
     
     return loc
+
+
+def combine_rvs_per_epoch(bjd, rv, rverr, one_epoch_size=1.0, median=True, nsig=0., verbose=False) :
+    
+    """
+        Description: this function combines all RV data points within the same epoch,
+                     where the size of an epoch can be given as input parameter
+    """
+    t0 = np.min(bjd)
+    tf = np.max(bjd)
+    print(t0,tf)
+    epochs = []
+    time_tmp = t0 - 0.5 * one_epoch_size
+    
+    while time_tmp <= tf + 0.5 * one_epoch_size :
+        epochs.append(time_tmp)
+        time_tmp += one_epoch_size
+    epochs = np.array(epochs)
+
+    digitized = np.digitize(bjd, epochs)
+
+    out_bjd, out_rv, out_rverr = [], [], []
+
+    for i in range(len(epochs)):
+        if len(bjd[digitized == i]) :
+            out_bjd.append(bjd[digitized == i].mean())
+            if median :
+                if verbose:
+                    print("Calculating the median of {0} RV measurements in epoch {1:.2f}+-{2:.2f}".format(len(rv[digitized == i]),epochs[i],one_epoch_size/2))
+
+                median_rv = np.median(rv[digitized == i])
+                rverror = np.median(np.abs(rv[digitized == i] - median_rv))  / 0.67499
+                out_rv.append(median_rv)
+                out_rverr.append(rverror)
+            else :
+                if verbose:
+                    print("Calculating the weighted mean of {0} RV measurements in epoch {1:.2f}+-{2:.2f}".format(len(rv[digitized == i]),epochs[i],one_epoch_size/2))
+
+                weights = 1.0 / (rverr[digitized == i] * rverr[digitized == i])
+                weighted_mean = np.average(rv[digitized == i], weights=weights)
+                rverror = np.sqrt(np.average((rv[digitized == i] - weighted_mean)**2, weights=weights))
+
+                if nsig :
+                    sigclip = np.where(np.logical_and(rv[digitized == i] > weighted_mean - nsig*rverror, rv[digitized == i] < weighted_mean + nsig*rverror))
+                    
+                    if len(rverr[digitized == i][sigclip]) :
+                        weighted_mean = np.average(rv[digitized == i][sigclip], weights=weights[sigclip])
+                        rverror = np.sqrt(np.average((rv[digitized == i][sigclip] - weighted_mean)**2, weights=weights[sigclip]))
+                
+                out_rv.append(weighted_mean)
+                out_rverr.append(rverror)
+
+    out_bjd = np.array(out_bjd)
+    out_rv = np.array(out_rv)
+    out_rverr = np.array(out_rverr)
+
+    return out_bjd, out_rv, out_rverr
