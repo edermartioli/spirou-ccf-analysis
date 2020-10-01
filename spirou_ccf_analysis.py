@@ -30,7 +30,7 @@ parser.add_option("-i", "--pattern", dest="pattern", help="Input CCF data patter
 parser.add_option("-m", "--method", dest="method", help="Method to calculate RVs",type='string',default="template")
 parser.add_option("-b", "--bandpass", dest="bandpass", help="Bandpass",type='string',default="YJHK")
 parser.add_option("-e", "--exclude_orders", dest="exclude_orders", help="List of orders to exclude in the analysis ",type='string',default="-1")
-parser.add_option("-e", "--min_snr", dest="min_snr", help="Minimum SNR",type='string',default="0")
+parser.add_option("-s", "--min_snr", dest="min_snr", help="Minimum SNR",type='string',default="0")
 parser.add_option("-a", action="store_true", dest="save_all_subproducts", help="Save all sub-products", default=False)
 parser.add_option("-f", action="store_true", dest="force", help="force overwriting", default=False)
 parser.add_option("-p", action="store_true", dest="plot", help="plot", default=False)
