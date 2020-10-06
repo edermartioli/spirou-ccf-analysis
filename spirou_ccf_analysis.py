@@ -32,7 +32,6 @@ parser.add_option("-b", "--bandpass", dest="bandpass", help="Bandpass",type='str
 parser.add_option("-e", "--exclude_orders", dest="exclude_orders", help="List of orders to exclude in the analysis ",type='string',default="-1")
 parser.add_option("-s", "--min_snr", dest="min_snr", help="Minimum SNR",type='string',default="0")
 parser.add_option("-a", action="store_true", dest="save_all_subproducts", help="Save all sub-products", default=False)
-parser.add_option("-f", action="store_true", dest="force", help="force overwriting", default=False)
 parser.add_option("-p", action="store_true", dest="plot", help="plot", default=False)
 parser.add_option("-v", action="store_true", dest="verbose", help="verbose", default=False)
 
@@ -80,4 +79,4 @@ for key in ccf_collections["modes"]:
     if options.verbose:
         print("Processing collection {0} containing {1} files".format(key, len(list_of_files)))
 
-    tbl = ccf2rv.get_object_rv(list_of_files, collection_key=key, method=options.method, force=options.force, exclude_orders = exclude_orders, snr_min=float(options.min_snr), bandpass = options.bandpass, save_rdb_timeseries = True, save_csv_table_of_results = save_csv_table_of_results, save_ccf_cube = save_ccf_cube, save_weight_table = save_weight_table, doplot=options.plot, showplots=options.plot, saveplots=save_plots, verbose=options.verbose)
+    tbl = ccf2rv.get_object_rv(list_of_files, collection_key=key, method=options.method, exclude_orders = exclude_orders, snr_min=float(options.min_snr), bandpass = options.bandpass, save_rdb_timeseries = True, save_csv_table_of_results = save_csv_table_of_results, save_ccf_cube = save_ccf_cube, save_weight_table = save_weight_table, doplot=options.plot, showplots=options.plot, saveplots=save_plots, verbose=options.verbose)

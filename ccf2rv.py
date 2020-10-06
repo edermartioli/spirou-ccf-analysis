@@ -33,7 +33,6 @@ def get_object_rv(ccf_files,
                   method = 'all',
                   exclude_orders = [-1],
                   weight_table = '',
-                  force = True,
                   snr_min = 0.0,
                   weight_type = '',
                   bandpass = 'YJHK',
@@ -92,10 +91,6 @@ def get_object_rv(ccf_files,
 
     # form a unique batch name with mask, object and method
     batch_name = '{0}/{1}__{2}'.format(outdir, collection_key, bandpass)
-    
-    if force == False:
-        if os.path.isfile('{0}.csv'.format(batch_name)):
-            return Table.read('{0}.csv'.format(batch_name))
 
     # build ccf cube
     ccf_cube, ccf_tbl, ccf_RV = build_ccf_cube(ccf_files, batch_name, exclude_orders=exclude_orders, save_ccf_cube=save_ccf_cube, verbose=verbose)
