@@ -55,6 +55,8 @@ rv_files = sorted(glob.glob(options.pattern))
 
 bjd, rv, rverr = [], [], []
 for i in range(len(rv_files)):
+    print(i, rv_files[i])
+    
     loc_bjd, loc_rv, loc_rverr = ccf2rv.read_rv_time_series(rv_files[i])
     #plt.errorbar(loc_bjd, loc_rv, yerr=loc_rverr, fmt='o', color='r', alpha=0.4)
     if options.combine_epochs :
@@ -70,7 +72,6 @@ rv = np.array(rv)
 rverr = np.array(rverr)
 
 mean_rv = np.mean(rv, axis=0)
-rvdiff = rv - mean_rv
 
 if options.calib :
     rv_func = lambda t, shift : mean_rv + shift
