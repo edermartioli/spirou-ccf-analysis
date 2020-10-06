@@ -29,7 +29,7 @@ Notice that more than one type of reduced data may be included in the input patt
 The tool `rv_plots.py` can be used to plot all RV time series together, as in the following example:
 
 ```
-python rv_plots.py --pattern=data/TOI-1278/*_rv.rdb -f -c --output=data/TOI-1278/TOI-1278_rv.rdb
+python rv_plots.py --pattern=data/TOI-1278/*_rv.rdb -f -c -e --output=data/TOI-1278/TOI-1278_rv.rdb
 ```
 
 Note the following options:
