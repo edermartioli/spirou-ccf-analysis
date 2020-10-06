@@ -13,7 +13,7 @@ The following input options are available:
 --pattern for input data pattern. 
   (e.g., --pattern=*ccf_gl514_neg_AB.fits)
 --method for selecting which method to use in the CCF analysis. 
-  Current methods available are: "gaussian", "bisector", or "template" (default)
+  Current methods available are: "gaussian", "bisector", "template", or "all" (default)
 --bandpass for selecting the nIR band pass
   Current options available are: 'Y', 'J', 'H', 'K', or 'YJHK' (default)
 --exclude_orders for selecting orders to exclude from the CCF analysis
@@ -21,7 +21,6 @@ The following input options are available:
 --min_snr for setting minimum signal-to-noise ratio.
 -a for saving all sub-products, including csv tables and plot files
   By default it generates only the RV time-series in .rdb format.
--f force overwriting
 -p for plotting
 -v for verbose
 ```
@@ -30,13 +29,14 @@ Notice that more than one type of reduced data may be included in the input patt
 The tool `rv_plots.py` can be used to plot all RV time series together, as in the following example:
 
 ```
-python rv_plots.py --pattern=data/TOI-1278/*.rdb -f -c --output=data/TOI-1278/TOI-1278.rdb
+python rv_plots.py --pattern=data/TOI-1278/*_rv.rdb -f -c --output=data/TOI-1278/TOI-1278_rv.rdb
 ```
 
 Note the following options:
 ```
 --pattern for input data pattern 
 --output for providing a filename to save mean RVs
+-e to combine RVs observed within the same epoch (1 epoch = +- 0.5 d)
 -f for fitting a sinusoidal orbit to each input data set
 -c to calibrate RVs to match the average RV between all data sets.
 ```
