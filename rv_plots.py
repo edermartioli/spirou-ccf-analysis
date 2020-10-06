@@ -93,11 +93,11 @@ for i in range(len(rv_files)):
         if options.fit_orbit :
             fit = ccf2rv.fitorbit(bjd[i], rv_calib, rverr[i], plot=False, verbose=False)
             plt.plot(fit["bjd_long_model"], fit["rv_long_model"],':')
-            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s sig_eff={7:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000))
+            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s sig_eff={7:.1f} m/s File:{8}".format(i,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000,basename))
         else :
             rms = np.std(rv_calib)
             mad = stats.median_absolute_deviation(rv_calib)
-            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s sig_eff={3:.1f} m/s".format(basename,rms*1000,mad*1000,sigma_eff*1000))
+            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s sig_eff={3:.1f} m/s File:{4}".format(i,rms*1000,mad*1000,sigma_eff*1000,basename))
 
     else :
         rv_calib = rv[i]
@@ -107,11 +107,11 @@ for i in range(len(rv_files)):
         if options.fit_orbit :
             fit = ccf2rv.fitorbit(bjd[i], rv[i], rverr[i], plot=False, verbose=False)
             plt.plot(fit["bjd_long_model"], fit["rv_long_model"],':')
-            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s sig_eff={7:.1f} m/s".format(basename,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000))
+            print("{0}: P={1:.2f}+-{2:.2f} d K={3:.3f}+-{4:.3f} km/s rms={5:.1f} m/s mad={6:.1f} m/s sig_eff={7:.1f} m/s File:{8}".format(i,fit["period"],fit["perioderr"],fit["K"],fit["Kerr"],fit["rms_residuals"],fit["mad_residuals"],sigma_eff*1000,basename))
         else :
             rms = np.std(rv_calib)
             mad = stats.median_absolute_deviation(rv_calib)
-            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s sig_eff={3:.1f} m/s".format(basename,rms*1000,mad*1000,sigma_eff*1000))
+            print("{0}: rms={1:.1f} m/s mad={2:.1f} m/s sig_eff={3:.1f} m/s File:{4}".format(i,rms*1000,mad*1000,sigma_eff*1000,basename))
 
     rvs_calib.append(rv_calib)
 

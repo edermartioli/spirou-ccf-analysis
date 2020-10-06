@@ -162,7 +162,7 @@ def get_object_rv(ccf_files,
     # add a measurement of the STDDEV of each mean CCF relative to the median CCF after correcting for the measured velocity. If you are going to add 'methods', add them before this line
     med_corr_ccf = add_stddev_to_ccf(ccf_files, tbl, ccf_RV, mean_ccf, id_min, doplot=False)
 
-    tbl = calculate_resid_ccf_projections(ccf_files, tbl, ccf_RV, med_corr_ccf, corr_ccf, id_min, pixel_size_in_kps=2.3)
+    tbl = calculate_resid_ccf_projections(ccf_files, tbl, ccf_RV, med_corr_ccf, corr_ccf, id_min, velocity_window, pixel_size_in_kps=2.3)
 
     if doplot :
         plot_residual_ccf(ccf_files, ccf_RV, med_corr_ccf, corr_ccf, batch_name, saveplots=saveplots, showplots=showplots)
@@ -782,7 +782,7 @@ def run_template_method(tbl, ccf_files, ccf_RV, mean_ccf, id_min, velocity_windo
 
         fit = np.polyfit(ccf_RV[continuum], med_corr_ccf[continuum], 2)
         corr = np.polyval(fit, ccf_RV)
-        corr -= np.mean(corr)
+        corr -= np.nanmean(corr)
         med_corr_ccf -= corr
 
 
@@ -795,8 +795,8 @@ def run_template_method(tbl, ccf_files, ccf_RV, mean_ccf, id_min, velocity_windo
             mean_ccf[:, i] -= med
 
             # correcting depth of CCF
-            amp = np.nansum( (corr_ccf[:,i] - np.mean(corr_ccf[:,i]))*(med_corr_ccf - np.mean(med_corr_ccf)) )/np.nansum((med_corr_ccf - np.mean(med_corr_ccf))**2)
-            mean_ccf[:, i] = (mean_ccf[:,i] - np.mean(mean_ccf[:,i]))/np.sqrt(amp)+np.mean(mean_ccf[:,i])
+            amp = np.nansum( (corr_ccf[:,i] - np.nanmean(corr_ccf[:,i]))*(med_corr_ccf - np.nanmean(med_corr_ccf)) )/np.nansum((med_corr_ccf - np.nanmean(med_corr_ccf))**2)
+            mean_ccf[:, i] = (mean_ccf[:,i] - np.nanmean(mean_ccf[:,i]))/np.sqrt(amp)+np.nanmean(mean_ccf[:,i])
 
 
             # correcting 2rd order polynomial structures in continuum
@@ -882,32 +882,32 @@ def add_stddev_to_ccf(ccf_files, tbl, ccf_RV, mean_ccf, id_min, doplot=False) :
     return med_corr_ccf
 
 
-def calculate_resid_ccf_projections(ccf_files, tbl, ccf_RV, med_corr_ccf, corr_ccf, id_min, pixel_size_in_kps=2.3) :
+def calculate_resid_ccf_projections(ccf_files, tbl, ccf_RV, med_corr_ccf, corr_ccf, id_min, velocity_window, pixel_size_in_kps=2.3) :
     
-    g = np.abs(ccf_RV - ccf_RV[id_min]) < 10
+    g = np.abs(ccf_RV - ccf_RV[id_min]) < velocity_window
 
     d2 = np.gradient(np.gradient(med_corr_ccf) / np.gradient(ccf_RV))
     d3 = np.gradient(np.gradient(np.gradient(med_corr_ccf) / np.gradient(ccf_RV)))
     # second derivatives
-    tbl['D2_RESIDUAL_CCF'] = np.zeros_like(tbl,dtype = float)
+    tbl['D2_RESIDUAL_CCF'] = np.zeros_like(ccf_files, dtype = float)
     # third derivatives
-    tbl['D3_RESIDUAL_CCF'] = np.zeros_like(tbl,dtype = float)
+    tbl['D3_RESIDUAL_CCF'] = np.zeros_like(ccf_files, dtype = float)
     # RMS of residual CCF w.r.t. the median ccf
-    tbl['CCF_RESIDUAL_RMS']= np.zeros_like(ccf_files,dtype = float)
+    tbl['CCF_RESIDUAL_RMS']= np.zeros_like(ccf_files, dtype = float)
 
     # pix scale expressed in CCF pixels
-    pix_scale = pixel_size_in_kps/np.nanmedian(np.gradient(ccf_RV))
+    pix_scale = pixel_size_in_kps / np.nanmedian(np.gradient(ccf_RV))
     
     for i in range(len(ccf_files)):
         residual = corr_ccf[:,i] - med_corr_ccf
         
-        tbl['D2_RESIDUAL_CCF'][i] = np.nansum(residual*d2)/np.nansum(d2)
-        tbl['D3_RESIDUAL_CCF'][i] = np.nansum(residual*d3)/np.nansum(d3)
+        tbl['D2_RESIDUAL_CCF'][i] = np.nansum(residual*d2) / np.nansum(d2)
+        tbl['D3_RESIDUAL_CCF'][i] = np.nansum(residual*d3) / np.nansum(d3)
         tbl['CCF_RESIDUAL_RMS'][i] = np.std(residual[g])
         
         # 1/dvrms -avoids division by zero
         inv_dvrms = (np.gradient(med_corr_ccf) / np.gradient(ccf_RV))/((np.nanstd(residual) * np.sqrt(pix_scale)) )
-        tbl['ERROR_RV'][i] = 1 / np.sqrt(np.nansum(inv_dvrms** 2))
+        tbl['ERROR_RV'][i] = 1 / np.sqrt(np.nansum(inv_dvrms ** 2))
     
     return tbl
 
